@@ -1,15 +1,18 @@
 var express = require('express')
 var bodyParser = require('body-parser')
 const pug = require('pug')
+const low = require('lowdb')
+const FileSync = require('lowdb/adapters/FileSync')
+
+const adapter = new FileSync('db.json')
+var db = low(adapter)
 
 var app = express()
 var port = 3000
 
-var users = [
-    {id: 1, name: 'Tien'},
-    {id: 2, name: 'Trung'},
-    {id: 3, name: 'Phat'},
-];
+// Set some defaults
+db.defaults({ users: []})
+    .write()
 
 app.set('view engine', 'pug')
 app.set('views', './views')
@@ -24,17 +27,10 @@ app.get('/', function (req, res) {
        name: 'pug'
    });
 });
-// app.get('/user', function (req, res) {
-//     res.render('users/index', {users: [
-//             {id: 1, name: 'Tien'},
-//             {id: 2, name: 'Nga'},
-//             {id: 3, name: 'Giap'},
-//         ]});
-// });
 
 app.get('/users', (req, res)=>{
     res.render('users/index', {
-        users: users
+        users: db.get('users').value()
     })
 });
 
@@ -54,9 +50,11 @@ app.get('/users/create',(req, res)=>{
    res.render('users/create');
 });
 
+var count = 0;
 app.post('/users/create',(req, res)=>{
-    users.push({name: req.body.todo});
-    console.log(req.body.todo);
+    db.get('users').push({id:count + 1 , name: req.body.todo}).write();
+    // data.push({id:data.length + 1 , name: req.body.todo}).write();
+    count++;
     res.redirect('/users');
 });
 
