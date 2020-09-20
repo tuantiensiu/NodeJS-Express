@@ -1,5 +1,6 @@
 var express = require('express')
 var bodyParser = require('body-parser')
+const shortid = require('shortid');
 const pug = require('pug')
 const low = require('lowdb')
 const FileSync = require('lowdb/adapters/FileSync')
@@ -50,11 +51,16 @@ app.get('/users/create',(req, res)=>{
    res.render('users/create');
 });
 
-var count = 0;
+//get user with parameter
+app.get('/users/:id',(req, res)=>{
+    var userId = req.params.id;
+    var user = db.get('users').find({id:userId}).value();
+    //return view
+    res.render('users/view',{user: user});
+});
+
 app.post('/users/create',(req, res)=>{
-    db.get('users').push({id:count + 1 , name: req.body.todo}).write();
-    // data.push({id:data.length + 1 , name: req.body.todo}).write();
-    count++;
+    db.get('users').push({id:shortid.generate() , name: req.body.todo}).write();
     res.redirect('/users');
 });
 

@@ -3,3 +3,4 @@ a(href='/users/create') create
 ul
     each item in users
         li= item.name
+            a(href="/users/" + item.id, target="_blank") View
