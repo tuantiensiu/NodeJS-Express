@@ -59,6 +59,16 @@ app.get('/users/:id',(req, res)=>{
     res.render('users/view',{user: user});
 });
 
+app.get('/users/:id/delete', (req, res)=>{
+   var userId = req.params.id;
+   var user = db.get("users").find({ id:userId}).value();
+   console.log(user);
+   db.get('users')
+        .remove({ id: user.id })
+        .write()
+   res.redirect('/users');
+});
+
 app.post('/users/create',(req, res)=>{
     db.get('users').push({id:shortid.generate() , name: req.body.todo}).write();
     res.redirect('/users');
