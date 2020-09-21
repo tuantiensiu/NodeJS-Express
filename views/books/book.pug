@@ -1,0 +1,15 @@
+h1 List books in Library
+form(action="books/create", method="POST")
+    label Name
+    input(type="text", name="title")
+    label Description
+    input(type="text", name="description")
+    button Create
+ul
+    each item in books
+        li=item.title
+            br
+            span Description:
+            span &nbsp;
+            span=item.description
+            a(href="books/update/" + item.id) Update

@@ -6,7 +6,9 @@ const low = require('lowdb')
 const FileSync = require('lowdb/adapters/FileSync')
 
 const adapter = new FileSync('db.json')
+const adapterBooks = new FileSync('book.json')
 var db = low(adapter)
+var dbBook = low(adapterBooks)
 
 var app = express()
 var port = 3000
@@ -15,13 +17,45 @@ var port = 3000
 db.defaults({ users: []})
     .write()
 
+//setup view render pug
 app.set('view engine', 'pug')
 app.set('views', './views')
-
 
 app.use(express.json()) // for parsing application/json
 app.use(express.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
 
+
+app.get('/books', (req, res)=>{
+    res.render("books/book",{books: dbBook.get("books").value()})
+});
+
+//Create data base
+app.post('/books/create', (req, res)=>{
+   dbBook.get('books').push({
+           id: shortid.generate(),
+           title: req.body.title,
+           description: req.body.description
+       }).write();
+   res.redirect('/books');
+});
+
+//update books
+app.get('/books/update/:id', (req, res)=>{
+   var bookId = req.params.id;
+   var book = dbBook.get('books').find({ id:bookId}).value();
+   res.render('books/update', { book: book});
+});
+
+app.post('/books/update', (req, res)=>{
+    var bookId = req.body.id;
+    dbBook.get("books").find({
+        id: bookId
+    }).assign({
+        title: req.body.title
+    }).write();
+
+    res.redirect("/books");
+});
 
 app.get('/', function (req, res) {
    res.render('home', {
